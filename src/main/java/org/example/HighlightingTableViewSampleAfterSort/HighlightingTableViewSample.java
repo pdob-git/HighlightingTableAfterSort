@@ -1,12 +1,14 @@
 package org.example.HighlightingTableViewSampleAfterSort;
 
-import java.util.Arrays;
+import java.util.*;
 
 import javafx.application.Application;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -35,7 +37,7 @@ public class HighlightingTableViewSample extends Application {
             new Person("Emma", "Jones", "emma.jones@example.com"),
             new Person("Michael", "Brown", "michael.brown@example.com")
         );
-   
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -88,10 +90,27 @@ public class HighlightingTableViewSample extends Application {
                 rowFactory.getStyledRowIndices().clear();
             }
         });
-        
+
+        final Button getHighlightItems = new Button("Show Highlight row number");
+
+        getHighlightItems.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                List<Integer>  HighlightedRow = rowFactory.getStyledRowIndices();
+                System.out.println(HighlightedRow);
+                for (Integer rownumber:
+                     HighlightedRow) {
+                    Person person = table.getItems().get(rownumber);
+                    System.out.println(person);
+                    System.out.println(table.getItems().indexOf(person));
+
+                }
+            }
+        });
+
         final HBox buttons = new HBox(5);
         buttons.setAlignment(Pos.CENTER);
-        buttons.getChildren().addAll(highlightButton, clearHighlightButton);
+        buttons.getChildren().addAll(highlightButton, clearHighlightButton, getHighlightItems);
         
  
         final VBox vbox = new VBox();
@@ -153,6 +172,17 @@ public class HighlightingTableViewSample extends Application {
         
         public final StringProperty emailProperty() {
             return email ;
+        }
+
+        @Override
+        public String toString() {
+            String result = "Person{" +
+                    "firstName=" + getFirstName() +
+                    ", lastName=" + getLastName()+
+                    ", email=" + getEmail() +
+                    '}';
+
+            return  result;
         }
     }
 } 
