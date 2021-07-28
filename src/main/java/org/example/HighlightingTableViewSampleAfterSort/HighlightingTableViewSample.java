@@ -3,12 +3,8 @@ package org.example.HighlightingTableViewSampleAfterSort;
 import java.util.*;
 
 import javafx.application.Application;
-import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -19,7 +15,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -28,7 +23,7 @@ import javafx.stage.Stage;
  
 public class HighlightingTableViewSample extends Application {
  
-    private TableView<Person> table = new TableView<Person>();
+    private MyTable<Person> table = new MyTable<Person>();
     private final ObservableList<Person> data =
         FXCollections.observableArrayList(
             new Person("Jacob", "Smith", "jacob.smith@example.com"),
@@ -100,12 +95,27 @@ public class HighlightingTableViewSample extends Application {
                 System.out.println(HighlightedRow);
                 for (Integer rownumber:
                      HighlightedRow) {
-                    Person person = table.getItems().get(rownumber);
+                    Person person = (Person) table.getItems().get(rownumber);
                     System.out.println(person);
                     System.out.println(table.getItems().indexOf(person));
 
                 }
             }
+        });
+        
+        table.setOnSort(event -> {
+            List<Integer>  HighlightedRow = rowFactory.getStyledRowIndices();
+            table.setHighlightedRow(HighlightedRow);
+            System.out.println("Set on sort");
+            System.out.println(HighlightedRow);
+            for (Integer rowNumber:
+                    HighlightedRow) {
+                Person person = (Person) table.getItems().get(rowNumber);
+                System.out.println(person);
+                System.out.println(table.getItems().indexOf(person));
+
+            }
+            
         });
 
         final HBox buttons = new HBox(5);
@@ -125,64 +135,5 @@ public class HighlightingTableViewSample extends Application {
         stage.setScene(scene);
         stage.show();
     }
- 
-    public static class Person {
- 
-        private final StringProperty firstName;
-        private final StringProperty lastName;
-        private final StringProperty email;
- 
-        private Person(String fName, String lName, String email) {
-            this.firstName = new SimpleStringProperty(this, "firstName", fName);
-            this.lastName = new SimpleStringProperty(this, "lastName", lName);
-            this.email = new SimpleStringProperty(this, "email", email);
-        }
- 
-        public final String getFirstName() {
-            return firstName.get();
-        }
- 
-        public final void setFirstName(String fName) {
-            firstName.set(fName);
-        }
-        
-        public StringProperty firstNameProperty() {
-            return firstName ;
-        }
- 
-        public final String getLastName() {
-            return lastName.get();
-        }
- 
-        public final void setLastName(String fName) {
-            lastName.set(fName);
-        }
-        
-        public final StringProperty lastNameProperty() {
-            return lastName ;
-        }
- 
-        public final String getEmail() {
-            return email.get();
-        }
- 
-        public final void setEmail(String fName) {
-            email.set(fName);
-        }
-        
-        public final StringProperty emailProperty() {
-            return email ;
-        }
 
-        @Override
-        public String toString() {
-            String result = "Person{" +
-                    "firstName=" + getFirstName() +
-                    ", lastName=" + getLastName()+
-                    ", email=" + getEmail() +
-                    '}';
-
-            return  result;
-        }
-    }
-} 
+}
