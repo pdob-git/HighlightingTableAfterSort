@@ -10,19 +10,26 @@ public class MyTable<S> extends TableView {
     private StyleChangingRowFactory<Person> rowFactory;
 
     private List<Integer>  HighlightedRow;
+    private Person personHighlighted;
 
     @Override
     public void sort() {
         super.sort();
-        System.out.println("test custom sort");
+        System.out.println("-----Test custom sort start");
 
         rowFactory = new StyleChangingRowFactory<>("highlightedRow");
         this.setRowFactory(rowFactory);
 
 //        getHighlightedRow().set(0,this.getItems().indexOf(this.getItems().get(HighlightedRow.get(0))));
-        getHighlightedRow().set(0,2);
+//        getHighlightedRow().set(0,2);
 
+
+        System.out.println("Highlighted person " + getPersonHighlighted());
         rowFactory.getStyledRowIndices().clear();
+
+        this.getSelectionModel().select(getPersonHighlighted());
+        getHighlightedRow().set(0,this.getSelectionModel().getFocusedIndex());
+        this.getSelectionModel().clearSelection();
         rowFactory.getStyledRowIndices().setAll(this.getHighlightedRow());
 
         HighlightedRow = rowFactory.getStyledRowIndices();
@@ -34,6 +41,7 @@ public class MyTable<S> extends TableView {
             System.out.println(this.getItems().indexOf(person));
 
         }
+        System.out.println("-----Test custom sort end");
     }
 
     public List<Integer> getHighlightedRow() {
@@ -44,7 +52,15 @@ public class MyTable<S> extends TableView {
         HighlightedRow = highlightedRow;
     }
 
-//    @Override
+    public Person getPersonHighlighted() {
+        return personHighlighted;
+    }
+
+    public void setPersonHighlighted(Person personHighlighted) {
+        this.personHighlighted = personHighlighted;
+    }
+
+    //    @Override
 //    public void setOnSort(EventHandler value) {
 //        super.setOnSort(value);
 //        rowFactory = (StyleChangingRowFactory<Person>) this.getRowFactory();

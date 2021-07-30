@@ -66,7 +66,7 @@ public class HighlightingTableViewSample extends Application {
         final StyleChangingRowFactory<Person> rowFactory = new StyleChangingRowFactory<>("highlightedRow");
         table.setRowFactory(rowFactory);
         
-        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         
         final Button highlightButton = new Button("Highlight");
         highlightButton.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedIndices()));
@@ -104,10 +104,12 @@ public class HighlightingTableViewSample extends Application {
         });
         
         table.setOnSort(event -> {
+            System.out.println("-----Set On Sort Start");
             List<Integer>  HighlightedRow = rowFactory.getStyledRowIndices();
             table.setHighlightedRow(HighlightedRow);
             System.out.println("Set on sort");
             System.out.println(HighlightedRow);
+            table.setPersonHighlighted((Person) table.getItems().get(HighlightedRow.get(0)));
             for (Integer rowNumber:
                     HighlightedRow) {
                 Person person = (Person) table.getItems().get(rowNumber);
@@ -115,7 +117,7 @@ public class HighlightingTableViewSample extends Application {
                 System.out.println(table.getItems().indexOf(person));
 
             }
-            
+            System.out.println("-----Set On Sort End");
         });
 
         final HBox buttons = new HBox(5);
