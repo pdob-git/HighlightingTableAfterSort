@@ -12,9 +12,13 @@ public class MyTable<S> extends TableView {
     private List<Integer>  HighlightedRow;
     private Person personHighlighted;
 
-    @Override
-    public void sort() {
-        super.sort();
+
+
+    private AfterSort afterSort;
+
+//    @Override
+    public void oldsort() {
+//        super.sort();
         System.out.println("-----Test custom sort start");
 
         rowFactory = new StyleChangingRowFactory<>("highlightedRow");
@@ -44,6 +48,12 @@ public class MyTable<S> extends TableView {
         System.out.println("-----Test custom sort end");
     }
 
+    @Override
+    public void sort() {
+        super.sort();
+        afterSort.afterSortAction();
+    }
+
     public List<Integer> getHighlightedRow() {
         return HighlightedRow;
     }
@@ -60,19 +70,9 @@ public class MyTable<S> extends TableView {
         this.personHighlighted = personHighlighted;
     }
 
-    //    @Override
-//    public void setOnSort(EventHandler value) {
-//        super.setOnSort(value);
-//        rowFactory = (StyleChangingRowFactory<Person>) this.getRowFactory();
-//        HighlightedRow = rowFactory.getStyledRowIndices();
-//
-//        for (Integer rowNumber:
-//                HighlightedRow) {
-//            Person person = (Person) this.getItems().get(rowNumber);
-//            System.out.println(person);
-//            System.out.println(this.getItems().indexOf(person));
-//
-//        }
-//
-//    }
+    public void setAfterSort(AfterSort afterSort) {
+        this.afterSort = afterSort;
+    }
+
+
 }
