@@ -21,9 +21,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
  
-public class HighlightingTableViewSample extends Application {
+public class Main extends Application {
 
-    private MyTable<Person> table = new MyTable<Person>();
+    private final MyTable<Person> table = new MyTable<>();
     private final ObservableList<Person> data =
             FXCollections.observableArrayList(
                     new Person("Jacob", "Smith", "jacob.smith@example.com"),
@@ -32,8 +32,6 @@ public class HighlightingTableViewSample extends Application {
                     new Person("Emma", "Jones", "emma.jones@example.com"),
                     new Person("Michael", "Brown", "michael.brown@example.com")
             );
-    private Person personHighlighted;
-    List<Integer> highlightedRow;
 
     public static void main(String[] args) {
         launch(args);
@@ -50,17 +48,17 @@ public class HighlightingTableViewSample extends Application {
         TableColumn<Person, String> firstNameCol = new TableColumn<>("First Name");
         firstNameCol.setMinWidth(100);
         firstNameCol.setCellValueFactory(
-                new PropertyValueFactory<Person, String>("firstName"));
+                new PropertyValueFactory<>("firstName"));
 
         TableColumn<Person, String> lastNameCol = new TableColumn<>("Last Name");
         lastNameCol.setMinWidth(100);
         lastNameCol.setCellValueFactory(
-                new PropertyValueFactory<Person, String>("lastName"));
+                new PropertyValueFactory<>("lastName"));
 
         TableColumn<Person, String> emailCol = new TableColumn<>("Email");
         emailCol.setMinWidth(200);
         emailCol.setCellValueFactory(
-                new PropertyValueFactory<Person, String>("email"));
+                new PropertyValueFactory<>("email"));
 
         table.setItems(data);
         table.getColumns().addAll(Arrays.asList(firstNameCol, lastNameCol, emailCol));
@@ -93,74 +91,61 @@ public class HighlightingTableViewSample extends Application {
         getHighlightItems.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                List<Integer> HighlightedRow = rowFactory.getStyledRowIndices();
-                System.out.println(HighlightedRow);
-                for (Integer rownumber :
-                        HighlightedRow) {
-                    Person person = (Person) table.getItems().get(rownumber);
-                    System.out.println(person);
-                    System.out.println(table.getItems().indexOf(person));
-
-                }
+                List<Integer> HighlightedRows = rowFactory.getStyledRowIndices();
+                System.out.println("Highlighted Rows: " + HighlightedRows);
+                showHighlightedRows(HighlightedRows);
             }
         });
 
         table.setOnSort(event -> {
             System.out.println("-----Set On Sort Start");
-            highlightedRow = rowFactory.getStyledRowIndices();
-            table.setHighlightedRow(highlightedRow);
-            System.out.println("Set on sort");
-            System.out.println(highlightedRow);
-            table.setPersonHighlighted((Person) table.getItems().get(highlightedRow.get(0)));
-            for (Integer rowNumber :
-                    highlightedRow) {
-                Person person = (Person) table.getItems().get(rowNumber);
-                System.out.println(person);
-                System.out.println(table.getItems().indexOf(person));
 
+            table.setHighlightedRows(rowFactory.getStyledRowIndices());
+
+            System.out.println("Highlighted Rows: " + table.getHighlightedRows());
+
+            if (table.getHighlightedRows().size() == 0) {
+                return;
             }
+
+            table.setPersonHighlighted((Person) table.getItems().get(table.getHighlightedRows().get(0)));
+            if (table.getPersonHighlighted() == null){
+                return;
+            }
+            showHighlightedRows(table.getHighlightedRows());
+
             System.out.println("-----Set On Sort End");
         });
 
         table.setAfterSort(() -> {
             System.out.println("After Sort is working");
-            System.out.println("-----Test custom sort start");
+            System.out.println("-----AfterSort  start");
 
+            if (table.getPersonHighlighted() == null){
+                return;
+            }
 
-            //rowFactory = new StyleChangingRowFactory<>("highlightedRow");
-            //this.setRowFactory(rowFactory);
-
-//        getHighlightedRow().set(0,this.getItems().indexOf(this.getItems().get(HighlightedRow.get(0))));
-//        getHighlightedRow().set(0,2);
-
-
-            System.out.println("Highlighted person " + table.getPersonHighlighted());
+            System.out.println("Highlighted person: " + table.getPersonHighlighted());
             rowFactory.getStyledRowIndices().clear();
 
             table.getSelectionModel().select(table.getPersonHighlighted());
-            System.out.println(table.getSelectionModel().getSelectedIndices());
+            System.out.println("Selected row for person: " + table.getSelectionModel().getSelectedIndices());
 
-            System.out.println(table.getHighlightedRow());
-
-            table.getHighlightedRow().add(table.getSelectionModel().getFocusedIndex());
-            System.out.println("Focused index " + table.getSelectionModel().getFocusedIndex());
+            table.getHighlightedRows().add(table.getSelectionModel().getFocusedIndex());
+            System.out.println("Focused index: " + table.getSelectionModel().getFocusedIndex());
             table.getSelectionModel().clearSelection();
 
             final StyleChangingRowFactory<Person> rowFactoryLocal = new StyleChangingRowFactory<>("highlightedRow");
             table.setRowFactory(rowFactoryLocal);
 
-            rowFactoryLocal.getStyledRowIndices().setAll(getHighlightedRow());
+            rowFactoryLocal.getStyledRowIndices().setAll(table.getHighlightedRows());
 
-            table.setHighlightedRow(rowFactoryLocal.getStyledRowIndices());
-            System.out.println(table.getHighlightedRow());
-            for (Integer rowNumber :
-                    table.getHighlightedRow()) {
-                Person person = (Person) table.getItems().get(rowNumber);
-                System.out.println(person);
-                System.out.println(table.getItems().indexOf(person));
+            table.setHighlightedRows(rowFactoryLocal.getStyledRowIndices());
 
-            }
-            System.out.println("-----Test custom sort end");
+            System.out.println("Highlighted Rows: " + table.getHighlightedRows());
+            showHighlightedRows(table.getHighlightedRows());
+
+            System.out.println("-----AfterSort sort end");
         });
 
         final HBox buttons = new HBox(5);
@@ -176,25 +161,22 @@ public class HighlightingTableViewSample extends Application {
         Scene scene = new Scene(vbox, 450, 500);
         stage.setTitle("Highlighting Table View Sample");
         scene.getStylesheets().add(getClass().getResource("css/highlightingTable.css").toExternalForm());
-//        System.out.println(getClass().getResource("css/highlightingTable.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
     }
 
+    private void showHighlightedRows(List<Integer> highlightedRows) {
+        if (highlightedRows.size() == 0) {
+            return;
+        }
+        for (Integer rowNumber :
+                highlightedRows) {
+            Person person = (Person) table.getItems().get(rowNumber);
+            System.out.println("Highlighted person: " + person);
+            System.out.println("Highlighted person index: " + table.getItems().indexOf(person));
 
-    public Person getPersonHighlighted() {
-        return personHighlighted;
+        }
     }
 
-    public void setPersonHighlighted(Person personHighlighted) {
-        this.personHighlighted = personHighlighted;
-    }
 
-    public List<Integer> getHighlightedRow() {
-        return highlightedRow;
-    }
-
-    public void setHighlightedRow(List<Integer> highlightedRow) {
-        this.highlightedRow = highlightedRow;
-    }
 }
