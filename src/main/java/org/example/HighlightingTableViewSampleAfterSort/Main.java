@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -32,7 +33,7 @@ public class Main extends Application {
                     new Person("Emma", "Jones", "emma.jones@example.com"),
                     new Person("Michael", "Brown", "michael.brown@example.com")
             );
-
+    private SortedList<Person> sortedData;
     public static void main(String[] args) {
         launch(args);
     }
@@ -60,7 +61,15 @@ public class Main extends Application {
         emailCol.setCellValueFactory(
                 new PropertyValueFactory<>("email"));
 
+        // 1. Wrap the FilteredList in a SortedList.
+        sortedData = new SortedList<>(data);
+
+        // 2. Bind the SortedList comparator to the TableView comparator.
+        sortedData.comparatorProperty().bind(table.comparatorProperty());
+
+        // 3. Add sorted (and filtered) data to the table.
         table.setItems(data);
+
         table.getColumns().addAll(Arrays.asList(firstNameCol, lastNameCol, emailCol));
 
         final StyleChangingRowFactory<Person> rowFactory = new StyleChangingRowFactory<>("highlightedRow");
@@ -105,6 +114,7 @@ public class Main extends Application {
             System.out.println("Highlighted Rows: " + table.getHighlightedRows());
 
             if (table.getHighlightedRows().size() == 0) {
+                table.setPersonHighlighted(null);
                 return;
             }
 
@@ -128,12 +138,14 @@ public class Main extends Application {
             System.out.println("Highlighted person: " + table.getPersonHighlighted());
             rowFactory.getStyledRowIndices().clear();
 
-            table.getSelectionModel().select(table.getPersonHighlighted());
-            System.out.println("Selected row for person: " + table.getSelectionModel().getSelectedIndices());
+//            table.getSelectionModel().select(table.getPersonHighlighted());
+//            System.out.println("Selected row for person: " + table.getSelectionModel().getSelectedIndices());
+//
+//            table.getHighlightedRows().add(table.getSelectionModel().getFocusedIndex());
+//            System.out.println("Focused index: " + table.getSelectionModel().getFocusedIndex());
+//            table.getSelectionModel().clearSelection();
 
-            table.getHighlightedRows().add(table.getSelectionModel().getFocusedIndex());
-            System.out.println("Focused index: " + table.getSelectionModel().getFocusedIndex());
-            table.getSelectionModel().clearSelection();
+            table.getHighlightedRows().add(table.getItems().indexOf(table.getPersonHighlighted()));
 
             final StyleChangingRowFactory<Person> rowFactoryLocal = new StyleChangingRowFactory<>("highlightedRow");
             table.setRowFactory(rowFactoryLocal);
