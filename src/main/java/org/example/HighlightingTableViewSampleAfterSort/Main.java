@@ -33,7 +33,7 @@ public class Main extends Application {
                     new Person("Emma", "Jones", "emma.jones@example.com"),
                     new Person("Michael", "Brown", "michael.brown@example.com")
             );
-    private SortedList<Person> sortedData;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -61,13 +61,6 @@ public class Main extends Application {
         emailCol.setCellValueFactory(
                 new PropertyValueFactory<>("email"));
 
-        // 1. Wrap the FilteredList in a SortedList.
-        sortedData = new SortedList<>(data);
-
-        // 2. Bind the SortedList comparator to the TableView comparator.
-        sortedData.comparatorProperty().bind(table.comparatorProperty());
-
-        // 3. Add sorted (and filtered) data to the table.
         table.setItems(data);
 
         table.getColumns().addAll(Arrays.asList(firstNameCol, lastNameCol, emailCol));
@@ -111,39 +104,35 @@ public class Main extends Application {
 
             table.setHighlightedRows(rowFactory.getStyledRowIndices());
 
-            System.out.println("Highlighted Rows: " + table.getHighlightedRows());
-
             if (table.getHighlightedRows().size() == 0) {
                 table.setPersonHighlighted(null);
+                System.out.println("-----Set On Sort interrupted");
                 return;
             }
 
             table.setPersonHighlighted((Person) table.getItems().get(table.getHighlightedRows().get(0)));
+
             if (table.getPersonHighlighted() == null){
+                System.out.println("-----Set On Sort interrupted");
                 return;
             }
             showHighlightedRows(table.getHighlightedRows());
+            System.out.println("Table before sort");
+            System.out.println(printTableItems((ObservableList<Person>)table.getItems()));
 
             System.out.println("-----Set On Sort End");
         });
 
         table.setAfterSort(() -> {
             System.out.println("After Sort is working");
-            System.out.println("-----AfterSort  start");
+            System.out.println("-----After Sort  start");
 
             if (table.getPersonHighlighted() == null){
+                System.out.println("-----After Sort interrupted");
                 return;
             }
 
-            System.out.println("Highlighted person: " + table.getPersonHighlighted());
             rowFactory.getStyledRowIndices().clear();
-
-//            table.getSelectionModel().select(table.getPersonHighlighted());
-//            System.out.println("Selected row for person: " + table.getSelectionModel().getSelectedIndices());
-//
-//            table.getHighlightedRows().add(table.getSelectionModel().getFocusedIndex());
-//            System.out.println("Focused index: " + table.getSelectionModel().getFocusedIndex());
-//            table.getSelectionModel().clearSelection();
 
             table.getHighlightedRows().add(table.getItems().indexOf(table.getPersonHighlighted()));
 
@@ -154,10 +143,13 @@ public class Main extends Application {
 
             table.setHighlightedRows(rowFactoryLocal.getStyledRowIndices());
 
-            System.out.println("Highlighted Rows: " + table.getHighlightedRows());
+
             showHighlightedRows(table.getHighlightedRows());
 
-            System.out.println("-----AfterSort sort end");
+            System.out.println("Table after sort");
+            System.out.println(printTableItems((ObservableList<Person>)table.getItems()));
+
+            System.out.println("-----After Sort end");
         });
 
         final HBox buttons = new HBox(5);
@@ -188,6 +180,17 @@ public class Main extends Application {
             System.out.println("Highlighted person index: " + table.getItems().indexOf(person));
 
         }
+    }
+
+    public String printTableItems(ObservableList<Person> tableItems) {
+        StringBuilder stringResult = new StringBuilder();
+        for (Person person:
+                tableItems) {
+            stringResult.append("Index :").append(tableItems.indexOf(person)).append(" ")
+                    .append(person.toString()).append("\n");
+        }
+        stringResult.append("----------------------");
+        return stringResult.toString();
     }
 
 
